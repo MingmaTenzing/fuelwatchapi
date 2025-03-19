@@ -38,4 +38,4 @@ const fetch_xml_station_prices = async (req: Request, res: Response) => {
     res.json(processedData);
   });
 };
-module.exports = { fetch_xml_station_prices };
+export { fetch_xml_station_prices };

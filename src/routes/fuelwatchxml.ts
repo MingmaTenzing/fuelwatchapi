@@ -1,10 +1,10 @@
 // routes that work with fuelwatch rss feed
 
-const xmlexpress = require("express");
+import xmlexpress from "express";
 
 const xmlrouter = xmlexpress.Router();
 
-const { fetch_xml_station_prices } = require("../controllers/fetch_xml_data");
+import { fetch_xml_station_prices } from "../controllers/fuelwatch_xml";
 
 xmlrouter.route("/").get(fetch_xml_station_prices);
 
