@@ -105,3 +105,12 @@ export interface price_trend {
   averagePrice: number;
   publishDate: string;
 }
+
+export interface fuelwatch_query_parameters {
+  Product?: number;
+  Suburb?: string;
+  Region?: number;
+  Brand?: number;
+  Day?: string;
+  Surrounding?: string;
+}

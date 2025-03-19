@@ -1,4 +1,5 @@
 import express from "express";
+import { errorHandler } from "./src/middlewares/errors";
 
 const app = express();
 
@@ -16,6 +17,8 @@ app.use("/xml", fuelwatch_rss_route);
 // middlewares
 
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(errorHandler);
 
 app.listen(port, () => {
   console.log("app with typescript running");
