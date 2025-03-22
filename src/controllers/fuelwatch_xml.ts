@@ -13,6 +13,7 @@ import { StatusCodes } from "http-status-codes";
 
 import { xmlParser } from "../utils/xml_parser";
 import { xml_image_mapper } from "../utils/xml_image_helper";
+import { region_fuel_average_calculator } from "../utils/region_fuel_average";
 
 const parseString = require("xml2js").parseString;
 
@@ -37,6 +38,8 @@ const fetch_xml_station_prices = async (
     );
 
     const response = await data.text();
+
+    region_fuel_average_calculator();
     parseString(response, (err: any, result: any) => {
       if (err) {
         throw new Error("cannot parse the xml to json format");

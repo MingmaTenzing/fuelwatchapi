@@ -54,8 +54,9 @@ const site_details = async (
       await fetch(` https://www.fuelwatch.wa.gov.au/api/sites`)
         .then((response) => response.json())
         .then((site) =>
-          site.find((station: FuelStation) => station.id == Number(site_id))
-        ),
+          site.filter((station: FuelStation) => station.id == Number(site_id))
+        )
+        .then((fuel_station) => api_image_mapper(fuel_station)),
     ]);
 
     res.status(StatusCodes.OK).json({ site_details, site_price_details });
