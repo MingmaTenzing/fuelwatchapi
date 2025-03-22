@@ -18,6 +18,13 @@ export class NotFoundError extends BASE_ERROR {
   }
 }
 
+export class BadRequestError extends BASE_ERROR {
+  constructor(messsage: string) {
+    super(messsage);
+    this.name = "Bad Request";
+    this.statusCode = StatusCodes.BAD_REQUEST;
+  }
+}
 export class UnAuthorizedError extends BASE_ERROR {
   constructor(message: string) {
     super(message);

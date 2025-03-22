@@ -7,11 +7,7 @@ import {
   fuelwatch_xml_processed,
   fuelwatch_xml_raw,
 } from "../../types";
-import {
-  BASE_ERROR,
-  NotFoundError,
-  UnAuthorizedError,
-} from "../Errors-Classes/NotFoundError";
+import { BASE_ERROR, NotFoundError, UnAuthorizedError } from "../Errors/errors";
 import { error } from "console";
 import { StatusCodes } from "http-status-codes";
 
