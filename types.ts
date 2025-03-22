@@ -9,7 +9,24 @@ export interface price_change_predict {
   tomorrow_predicted_price: number;
 }
 
-export interface fuelwatch_xml {
+export interface fuelwatch_xml_raw {
+  trading: any;
+  title: string;
+  description: string;
+  date: string;
+  "trading-name": string;
+  price: string;
+  location: string;
+  address: string;
+  latitude: string;
+  longitude: string;
+  "site-features": string;
+  phone: string;
+  brand: string;
+  brand_image?: string;
+}
+
+export interface fuelwatch_xml_processed {
   trading: any;
   title: string;
   description: string;
@@ -23,7 +40,7 @@ export interface fuelwatch_xml {
   site_features: string;
   phone: string;
   brand: string;
-  brand_image: string;
+  brand_image?: string;
 }
 
 export interface markerCluster_locations {

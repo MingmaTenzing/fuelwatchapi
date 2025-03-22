@@ -1,5 +1,6 @@
 import express from "express";
-import { errorHandler } from "./src/middlewares/errors";
+import { errorHandler } from "./src/middlewares/error_handler";
+import { error_logging } from "./src/middlewares/error_logger";
 
 const app = express();
 
@@ -18,6 +19,7 @@ app.use("/xml", fuelwatch_rss_route);
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// app.use(error_logging);
 app.use(errorHandler);
 
 app.listen(port, () => {
