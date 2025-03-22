@@ -2,7 +2,11 @@
 // requires converting the xml to json
 
 import { NextFunction, query, Request, Response } from "express";
-import { fuelwatch_query_parameters, fuelwatch_xml } from "../../types";
+import {
+  fuelwatch_query_parameters,
+  fuelwatch_xml_processed,
+  fuelwatch_xml_raw,
+} from "../../types";
 import {
   BASE_ERROR,
   NotFoundError,
@@ -10,6 +14,9 @@ import {
 } from "../Errors-Classes/NotFoundError";
 import { error } from "console";
 import { StatusCodes } from "http-status-codes";
+
+import { xmlParser } from "../utils/xml_parser";
+import { xml_image_mapper } from "../utils/xml_image_helper";
 
 const parseString = require("xml2js").parseString;
 
@@ -34,7 +41,6 @@ const fetch_xml_station_prices = async (
     );
 
     const response = await data.text();
-
     parseString(response, (err: any, result: any) => {
       if (err) {
         throw new Error("cannot parse the xml to json format");
@@ -44,21 +50,10 @@ const fetch_xml_station_prices = async (
       if (!raw_data) {
         throw new NotFoundError("not found anay data data");
       }
-      const processedData = raw_data.map((site: any) => ({
-        title: site.title[0],
-        description: site.description[0],
-        brand: site.brand[0],
-        date: site.date[0],
-        price: Number(site.price[0]),
-        trading_name: site["trading-name"][0],
-        location: site.location[0],
-        address: site.address[0],
-        phone: site.phone[0],
-        latitude: site.latitude[0],
-        site_features: site["site-features"][0],
-      }));
+      const parsed_xml_data = xmlParser(raw_data);
+      const image_mapped_sites = xml_image_mapper(parsed_xml_data);
 
-      res.status(StatusCodes.OK).json(processedData);
+      res.status(StatusCodes.OK).json(image_mapped_sites);
     });
   } catch (error) {
     next(error);

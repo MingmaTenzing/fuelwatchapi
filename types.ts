@@ -10,7 +10,6 @@ export interface price_change_predict {
 }
 
 export interface fuelwatch_xml_raw {
-  trading: any;
   title: string;
   description: string;
   date: string;
@@ -27,12 +26,11 @@ export interface fuelwatch_xml_raw {
 }
 
 export interface fuelwatch_xml_processed {
-  trading: any;
   title: string;
   description: string;
   date: string;
   trading_name: string;
-  price: string;
+  price: Number;
   location: string;
   address: string;
   latitude: string;
