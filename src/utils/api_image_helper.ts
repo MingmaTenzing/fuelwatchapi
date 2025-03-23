@@ -1,7 +1,7 @@
 import { FuelStation, fuelwatch_xml_processed } from "../../types";
 import { fuel_brands } from "./fuel_brands";
 
-// this function return an array of sites with their respecrtive brand logo
+// this function returns an array of sites with their respecrtive brand logo
 // following function should be used in the json end point of fuelwatch not the xml.
 // for xml endpoints there's other image mapper called (xml_image_helper).
 export const api_image_mapper = (data: FuelStation[]) => {
