@@ -47,17 +47,8 @@ export const region_price_calculator = async () => {
     ).then((response) => response.text()),
   ]).then((value) => {
     for (let i = 0; i < value.length; i++) {
-      parseString(value[i], (err: any, result: any) => {
-        if (err) {
-          throw new Error("cannot parse the xml to json format");
-        }
-        const raw_data = result.rss.channel[0].item;
-        if (!raw_data) {
-          throw new NotFoundError("didn't find any data");
-        }
-        const mapped_data = fuelwatch_parser(raw_data);
-        regions.push(mapped_data);
-      });
+      const parsed_data = fuelwatch_parser(value[i]);
+      regions.push(parsed_data);
     }
   });
 

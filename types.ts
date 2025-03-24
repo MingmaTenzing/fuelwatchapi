@@ -30,7 +30,7 @@ export interface fuelwatch_xml_processed {
   description: string;
   date: string;
   trading_name: string;
-  price: Number;
+  price: number;
   location: string;
   address: string;
   latitude: string;
