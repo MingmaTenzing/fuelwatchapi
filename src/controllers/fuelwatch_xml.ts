@@ -11,9 +11,9 @@ import { BASE_ERROR, NotFoundError, UnAuthorizedError } from "../Errors/errors";
 import { error } from "console";
 import { StatusCodes } from "http-status-codes";
 
-import { xmlParser } from "../utils/xml_parser";
+import { fuelwatch_parser } from "../utils/fuelwatch_parser";
 import { xml_image_mapper } from "../utils/xml_image_helper";
-import { region_fuel_average_calculator } from "../utils/region_fuel_average";
+import { region_price_calculator } from "../utils/region_average_calculator";
 
 const parseString = require("xml2js").parseString;
 
@@ -31,7 +31,7 @@ const fetch_xml_station_prices = async (
       searchParams.set(key, value);
     }
   }
-
+  console.log(searchParams);
   try {
     const data = await fetch(
       ` https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS?${searchParams.toString()}`
@@ -39,7 +39,6 @@ const fetch_xml_station_prices = async (
 
     const response = await data.text();
 
-    region_fuel_average_calculator();
     parseString(response, (err: any, result: any) => {
       if (err) {
         throw new Error("cannot parse the xml to json format");
@@ -49,13 +48,25 @@ const fetch_xml_station_prices = async (
       if (!raw_data) {
         throw new NotFoundError("not found anay data data");
       }
-      const parsed_xml_data = xmlParser(raw_data);
-      const image_mapped_sites = xml_image_mapper(parsed_xml_data);
+      const parsed_data = fuelwatch_parser(raw_data);
 
-      res.status(StatusCodes.OK).json(image_mapped_sites);
+      res.status(StatusCodes.OK).json(parsed_data);
     });
   } catch (error) {
     next(error);
   }
 };
-export { fetch_xml_station_prices };
+
+const region_average_prices = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const average_prices = await region_price_calculator();
+    res.status(StatusCodes.OK).json(average_prices);
+  } catch (error) {
+    next(error);
+  }
+};
+export { fetch_xml_station_prices, region_average_prices };
