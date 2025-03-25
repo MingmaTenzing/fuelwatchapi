@@ -1,10 +1,13 @@
 import { FuelStation, fuelwatch_xml_processed } from "../../types";
 import { fuel_brands } from "./fuel_brands";
 
-export const xml_image_mapper = (data: fuelwatch_xml_processed[]) => {
+// this function returns an array of sites with their respecrtive brand logo
+// following function should be used in the json end point of fuelwatch not the xml.
+// for xml endpoints there's other image mapper called (xml_image_helper).
+export const api_image_mapper = (data: FuelStation[]) => {
   const processed_data = data.map((site) => {
     const find_brand = fuel_brands.find(
-      (brand) => brand?.description == site.brand
+      (brand) => brand?.name == site.brandName
     );
 
     if (find_brand) {

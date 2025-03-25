@@ -1,24 +1,24 @@
 // uses the fuelwatch rss feed
 // requires converting the xml to json
 
-import { NextFunction, query, Request, Response } from "express";
+import { NextFunction, query, Request, response, Response } from "express";
 import {
   fuelwatch_query_parameters,
   fuelwatch_xml_processed,
   fuelwatch_xml_raw,
 } from "../../types";
 import {
+  BadRequestError,
   BASE_ERROR,
   NotFoundError,
   UnAuthorizedError,
-} from "../Errors-Classes/NotFoundError";
+} from "../Errors/errors";
 import { error } from "console";
 import { StatusCodes } from "http-status-codes";
 
-import { xmlParser } from "../utils/xml_parser";
-import { xml_image_mapper } from "../utils/xml_image_helper";
-
-const parseString = require("xml2js").parseString;
+import { fuelwatch_parser } from "../utils/fuelwatch_parser";
+import { region_price_calculator } from "../utils/region_average_calculator";
+import { region_cheapest_price } from "../utils/region-cheapest";
 
 // this function fetches the data from fuelwatch with provided query and converts to json
 const fetch_xml_station_prices = async (
@@ -41,22 +41,78 @@ const fetch_xml_station_prices = async (
     );
 
     const response = await data.text();
-    parseString(response, (err: any, result: any) => {
-      if (err) {
-        throw new Error("cannot parse the xml to json format");
-      }
 
-      const raw_data = result.rss.channel[0].item;
-      if (!raw_data) {
-        throw new NotFoundError("not found anay data data");
-      }
-      const parsed_xml_data = xmlParser(raw_data);
-      const image_mapped_sites = xml_image_mapper(parsed_xml_data);
+    const parsed_data = fuelwatch_parser(response);
 
-      res.status(StatusCodes.OK).json(image_mapped_sites);
-    });
+    res.status(StatusCodes.OK).json(parsed_data);
   } catch (error) {
     next(error);
   }
 };
-export { fetch_xml_station_prices };
+
+const region_average_prices = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const average_prices = await region_price_calculator();
+    res.status(StatusCodes.OK).json(average_prices);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetch_region_cheapest = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const query = req.query.Region as string;
+    if (!query) {
+      throw new BadRequestError("no query provided");
+    }
+
+    const data = await region_cheapest_price(query);
+    res.status(StatusCodes.OK).json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const fetch_perth_cheapest = async (
+  req: Request,
+  res: Response,
+  nex: NextFunction
+) => {
+  let combined_region_prices: fuelwatch_xml_processed[] = [];
+  const [north_metro, south_metro] = await Promise.all([
+    // north of river
+    fetch(
+      "https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS?Region=25"
+    ).then((response) => response.text()),
+
+    //  south or river
+    fetch(
+      "https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS?Region=26"
+    ).then((response) => response.text()),
+  ]);
+  const parsed_north_metro = fuelwatch_parser(north_metro);
+  const parsed_south_metro = fuelwatch_parser(south_metro);
+
+  combined_region_prices = parsed_north_metro.concat(parsed_south_metro);
+
+  combined_region_prices = combined_region_prices
+    .sort((a, b) => a.price - b.price)
+    .slice(0, 5);
+
+  res.status(StatusCodes.OK).json(combined_region_prices);
+};
+
+export {
+  fetch_xml_station_prices,
+  region_average_prices,
+  fetch_region_cheapest,
+  fetch_perth_cheapest,
+};
