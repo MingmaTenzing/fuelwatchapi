@@ -34,7 +34,7 @@ const fetch_xml_station_prices = async (
       searchParams.set(key, value);
     }
   }
-  console.log(searchParams);
+
   try {
     const data = await fetch(
       ` https://www.fuelwatch.wa.gov.au/fuelwatch/fuelWatchRSS?${searchParams.toString()}`
@@ -75,7 +75,7 @@ const fetch_region_cheapest = async (
     }
 
     const data = await region_cheapest_price(query);
-    res.json(data);
+    res.status(StatusCodes.OK).json(data);
   } catch (error) {
     next(error);
   }
@@ -107,7 +107,7 @@ const fetch_perth_cheapest = async (
     .sort((a, b) => a.price - b.price)
     .slice(0, 5);
 
-  res.json(combined_region_prices);
+  res.status(StatusCodes.OK).json(combined_region_prices);
 };
 
 export {

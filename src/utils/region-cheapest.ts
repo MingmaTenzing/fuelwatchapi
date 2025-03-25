@@ -11,6 +11,5 @@ export const region_cheapest_price = async (region_code: string) => {
 
   const sort_pricing = parsed_data.sort((a, b) => a.price - b.price);
 
-  console.log(sort_pricing);
-  return sort_pricing;
+  return sort_pricing[0];
 };

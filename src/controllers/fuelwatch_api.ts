@@ -16,7 +16,7 @@ const all_fuel_prices = async (
       "https://www.fuelwatch.wa.gov.au/api/sites?fuelType=ULP"
     );
 
-    const data = await response.json();
+    const data: FuelStation[] = await response.json();
     const stations_with_brand_image = api_image_mapper(data);
     res.status(StatusCodes.OK).json(stations_with_brand_image);
   } catch (error) {
@@ -40,7 +40,7 @@ const site_details = async (
 
   try {
     const [site_details, site_price_details] = await Promise.all([
-      await fetch(` https://www.fuelwatch.wa.gov.au/api/sites/${site_id}`).then(
+      fetch(` https://www.fuelwatch.wa.gov.au/api/sites/${site_id}`).then(
         (response) => {
           console.log(response);
           if (response.statusText == "No Content") {
@@ -51,7 +51,7 @@ const site_details = async (
           return response.json();
         }
       ),
-      await fetch(` https://www.fuelwatch.wa.gov.au/api/sites`)
+      fetch(` https://www.fuelwatch.wa.gov.au/api/sites`)
         .then((response) => response.json())
         .then((site) =>
           site.filter((station: FuelStation) => station.id == Number(site_id))
