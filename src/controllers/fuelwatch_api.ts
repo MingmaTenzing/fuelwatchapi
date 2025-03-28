@@ -76,4 +76,24 @@ const price_trend = async (req: Request, res: Response) => {
   res.json(data);
 };
 
-export { price_trend, all_fuel_prices, site_details };
+const search_filter = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const fuelType = req.query.fuelType as string;
+  const brand = req.body;
+  const { fuel_brands } = require("../utils/fuel_brands");
+
+  console.log(brand);
+  console.log(fuelType);
+  console.log(fuel_brands);
+  const response = await fetch(
+    `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
+  );
+  const sites: FuelStation[] = await response.json();
+  console.log(sites[0].brandName);
+  res.json(sites);
+};
+
+export { price_trend, all_fuel_prices, site_details, search_filter };

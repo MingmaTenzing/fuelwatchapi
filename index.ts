@@ -10,6 +10,10 @@ const bodyParser = require("body-parser");
 const fuelwatch_api_route = require("./src/routes/fuelwatchapi");
 const fuelwatch_rss_route = require("./src/routes/fuelwatchxml");
 
+// body parser middleware
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(express.json());
+
 // routes
 app.use(
   cors({
@@ -22,8 +26,6 @@ app.use("/", fuelwatch_api_route);
 app.use("/xml", fuelwatch_rss_route);
 
 // middlewares
-
-app.use(bodyParser.urlencoded({ extended: true }));
 
 // app.use(error_logging);
 app.use(errorHandler);
