@@ -81,19 +81,30 @@ const search_filter = async (
   res: Response,
   next: NextFunction
 ) => {
-  const fuelType = req.query.fuelType as string;
-  const brand = req.body;
-  const { fuel_brands } = require("../utils/fuel_brands");
+  try {
+    const fuelType = req.query.fuelType as string;
+    if (!fuelType) {
+      throw new BadRequestError("No fueltype provided");
+    }
+    const brands: string[] = req.body.brands;
+    if (!brands) {
+      throw new BadRequestError(
+        "please provide the brands in the body to filter"
+      );
+    }
 
-  console.log(brand);
-  console.log(fuelType);
-  console.log(fuel_brands);
-  const response = await fetch(
-    `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
-  );
-  const sites: FuelStation[] = await response.json();
-  console.log(sites[0].brandName);
-  res.json(sites);
+    const response = await fetch(
+      `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
+    );
+    const sites: FuelStation[] = await response.json();
+
+    const filterItems = sites.filter((item) => brands.includes(item.brandName));
+    console.log(filterItems.length);
+
+    res.status(StatusCodes.OK).json({ filterItems });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export { price_trend, all_fuel_prices, site_details, search_filter };
