@@ -13,6 +13,6 @@ const router = express.Router();
 router.route("/").get(all_fuel_prices);
 router.route("/trend").get(price_trend);
 router.route("/site/:id").get(site_details);
-router.route("/search").get(search_filter);
+router.route("/search").post(search_filter);
 
 module.exports = router;
