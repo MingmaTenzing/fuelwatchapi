@@ -25,6 +25,11 @@ export interface fuelwatch_xml_raw {
   brand_image?: string;
 }
 
+export interface map_view_search_query {
+  suburb: string;
+  fuelType: string;
+  brands: string[];
+}
 export interface fuelwatch_xml_processed {
   title: string;
   description: string;

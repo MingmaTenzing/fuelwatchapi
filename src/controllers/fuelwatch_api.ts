@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { FuelStation, price_trend, site_details } from "../../types";
+import {
+  FuelStation,
+  map_view_search_query,
+  price_trend,
+  site_details,
+} from "../../types";
 import { api_image_mapper } from "../utils/api_image_helper";
 import { BadRequestError, NotFoundError } from "../Errors/errors";
 
@@ -81,30 +86,35 @@ const search_filter = async (
   res: Response,
   next: NextFunction
 ) => {
-  try {
-    const fuelType = req.query.fuelType as string;
-    if (!fuelType) {
-      throw new BadRequestError("No fueltype provided");
-    }
-    const brands: string[] = req.body.brands;
-    if (!brands) {
-      throw new BadRequestError(
-        "please provide the brands in the body to filter"
-      );
-    }
-
-    const response = await fetch(
-      `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
-    );
-    const sites: FuelStation[] = await response.json();
-
-    const filterItems = sites.filter((item) => brands.includes(item.brandName));
-    console.log(filterItems.length);
-
-    res.status(StatusCodes.OK).json({ filterItems });
-  } catch (error) {
-    next(error);
+  if (!req.body) {
+    console.log("no");
   }
+  const { brands, fuelType, suburb }: map_view_search_query = req.body;
+  res.json("nothing");
+  // try {
+  //   const fuelType = req.query.fuelType as string;
+  //   if (!fuelType) {
+  //     throw new BadRequestError("No fueltype provided");
+  //   }
+  //   const brands: string[] = req.body.brands;
+  //   if (!brands) {
+  //     throw new BadRequestError(
+  //       "please provide the brands in the body to filter"
+  //     );
+  //   }
+
+  //   const response = await fetch(
+  //     `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
+  //   );
+  //   const sites: FuelStation[] = await response.json();
+
+  //   const filterItems = sites.filter((item) => brands.includes(item.brandName));
+  //   console.log(filterItems.length);
+
+  //   res.status(StatusCodes.OK).json({ filterItems });
+  // } catch (error) {
+  //   next(error);
+  // }
 };
 
 export { price_trend, all_fuel_prices, site_details, search_filter };
