@@ -77,8 +77,6 @@ const price_trend = async (req: Request, res: Response) => {
     `https://www.fuelwatch.wa.gov.au/api/report/price-trends?region=Metro&fuelType=${fuelType}`
   );
   const data: price_trend[] = await response.json();
-
-  res.json(data);
 };
 
 const search_filter = async (
@@ -86,11 +84,46 @@ const search_filter = async (
   res: Response,
   next: NextFunction
 ) => {
-  if (!req.body) {
-    console.log("no");
-  }
   const { brands, fuelType, suburb }: map_view_search_query = req.body;
-  res.json("nothing");
+
+  let search_result = <FuelStation[]>[];
+  console.log(brands, fuelType, suburb);
+  try {
+    if (!brands && !fuelType && !suburb) {
+      throw new BadRequestError("No body provided");
+    }
+    const response = await fetch(
+      `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
+    );
+
+    search_result = await response.json();
+
+    if (suburb) {
+      search_result = search_result.filter(
+        (item) => item.address.location == suburb.toUpperCase()
+      );
+    }
+    if (brands) {
+      search_result = search_result.filter((item) =>
+        brands.includes(item.brandName)
+      );
+    }
+    res.status(StatusCodes.OK).json(search_result);
+
+    // const sites: FuelStation[] = await response.json();
+    // console.log(suburb.toUpperCase());
+    // const filterItems = sites.filter(
+    //   (item) =>
+    //     item.address.location == suburb.toUpperCase() &&
+    //     brands.includes(item.brandName)
+    // );
+
+    // console.log(filterItems.length);
+    // res.status(StatusCodes.OK).json({ filterItems });
+  } catch (error) {
+    next(error);
+  }
+
   // try {
   //   const fuelType = req.query.fuelType as string;
   //   if (!fuelType) {
