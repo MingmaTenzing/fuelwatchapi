@@ -103,11 +103,14 @@ const search_filter = async (
         (item) => item.address.location == suburb.toUpperCase()
       );
     }
-    if (brands) {
+    if (brands.length > 0) {
       search_result = search_result.filter((item) =>
         brands.includes(item.brandName)
       );
     }
+
+    // adding brand images to search result
+    search_result = api_image_mapper(search_result);
     res.status(StatusCodes.OK).json(search_result);
 
     // const sites: FuelStation[] = await response.json();
