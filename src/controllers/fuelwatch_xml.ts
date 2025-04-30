@@ -19,6 +19,7 @@ import { StatusCodes } from "http-status-codes";
 import { fuelwatch_parser } from "../utils/fuelwatch_parser";
 import { region_price_calculator } from "../utils/region_average_calculator";
 import { region_cheapest_price } from "../utils/region-cheapest";
+import { parse } from "path";
 
 // this function fetches the data from fuelwatch with provided query and converts to json
 const fetch_xml_station_prices = async (
@@ -28,12 +29,15 @@ const fetch_xml_station_prices = async (
 ) => {
   const query = req.query as fuelwatch_query_parameters;
   const searchParams = new URLSearchParams();
-
-  if (query) {
-    for (const [key, value] of Object.entries(query)) {
-      searchParams.set(key, value);
+  console.log(req.body);
+  if (req.body) {
+    for (const key in req.body) {
+      if (req.body[key] != "") {
+        searchParams.set(key, req.body[key]);
+      }
     }
   }
+  console.log(searchParams.toString());
 
   try {
     const data = await fetch(
@@ -46,6 +50,7 @@ const fetch_xml_station_prices = async (
 
     res.status(StatusCodes.OK).json(parsed_data);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 };
