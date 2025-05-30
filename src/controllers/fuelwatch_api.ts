@@ -77,7 +77,12 @@ const price_trend = async (req: Request, res: Response) => {
     `https://www.fuelwatch.wa.gov.au/api/report/price-trends?region=Metro&fuelType=${fuelType}`
   );
   const data: price_trend[] = await response.json();
-  res.status(StatusCodes.OK).json(data);
+
+  const sorted_data = data.sort(
+    (a, b) =>
+      new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime()
+  );
+  res.status(StatusCodes.OK).json(sorted_data);
 };
 
 const search_filter = async (
