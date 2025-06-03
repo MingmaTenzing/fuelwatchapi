@@ -1,6 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { FuelStation, price_trend, site_details } from "../../types";
+import {
+  FuelStation,
+  map_view_search_query,
+  price_trend,
+  site_details,
+} from "../../types";
 import { api_image_mapper } from "../utils/api_image_helper";
 import { BadRequestError, NotFoundError } from "../Errors/errors";
 
@@ -73,7 +78,49 @@ const price_trend = async (req: Request, res: Response) => {
   );
   const data: price_trend[] = await response.json();
 
-  res.json(data);
+  const sorted_data = data.sort(
+    (a, b) =>
+      new Date(a.publishDate).getTime() - new Date(b.publishDate).getTime()
+  );
+  res.status(StatusCodes.OK).json(sorted_data);
 };
 
-export { price_trend, all_fuel_prices, site_details };
+const search_filter = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { brands, fuelType, suburb }: map_view_search_query = req.body;
+
+  let search_result = <FuelStation[]>[];
+  console.log(brands, fuelType, suburb);
+  try {
+    if (!brands && !fuelType && !suburb) {
+      throw new BadRequestError("No body provided");
+    }
+    const response = await fetch(
+      `https://www.fuelwatch.wa.gov.au/api/sites?fuelType=${fuelType.toUpperCase()}`
+    );
+
+    search_result = await response.json();
+
+    if (suburb) {
+      search_result = search_result.filter(
+        (item) => item.address.location == suburb.toUpperCase()
+      );
+    }
+    if (brands.length > 0) {
+      search_result = search_result.filter((item) =>
+        brands.includes(item.brandName)
+      );
+    }
+
+    // adding brand images to search result
+    search_result = api_image_mapper(search_result);
+    res.status(StatusCodes.OK).json(search_result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export { price_trend, all_fuel_prices, site_details, search_filter };
